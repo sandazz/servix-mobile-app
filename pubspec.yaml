@@ -1,0 +1,71 @@
+name: servix
+description: "Servix - Service Marketplace Mobile Application for Australia"
+publish_to: 'none'
+version: 1.0.0+3
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
+  # State Management
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
+
+  # Navigation
+  go_router: ^17.0.1
+
+  # Network
+  dio: ^5.4.3+1
+
+  # Storage
+  shared_preferences: ^2.2.3
+  flutter_secure_storage: ^10.0.0
+
+  # Forms & Validation
+  flutter_form_builder: ^10.2.0
+  form_builder_validators: ^11.2.0
+
+  # File Handling
+  file_picker: ^10.3.8
+  image_picker: ^1.0.7
+
+  # OTP Input
+  pin_code_fields: ^8.0.1
+
+  # Utilities
+  equatable: ^2.0.5
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.9
+  freezed: ^3.2.3
+  json_serializable: ^6.7.1
+  riverpod_generator: ^4.0.0+1
+  rename: ^3.1.0
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
