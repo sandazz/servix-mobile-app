@@ -62,6 +62,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/user_types/
     - assets/icons/
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf

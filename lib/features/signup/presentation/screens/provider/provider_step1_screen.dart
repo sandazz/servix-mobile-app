@@ -76,19 +76,23 @@ class _ProviderStep1ScreenState extends ConsumerState<ProviderStep1Screen> {
         onBackPressed: () => context.go('/signup-select-type'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 1, totalSteps: 6),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
-              'Personal Information',
+              'Sign up',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // Form
             Expanded(
               child: WhiteRoundedContainer(
@@ -148,6 +152,35 @@ class _ProviderStep1ScreenState extends ConsumerState<ProviderStep1Screen> {
                         const SizedBox(height: 32),
                         // Next Button
                         PrimaryButton(text: 'Next', onPressed: _handleNext),
+
+                        const SizedBox(height: 20),
+                        const StepIndicator(currentStep: 1, totalSteps: 6),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'If you have a account, so',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/login'),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

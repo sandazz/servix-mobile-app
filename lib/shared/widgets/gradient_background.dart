@@ -43,20 +43,10 @@ class GradientBackground extends StatelessWidget {
                       ),
                     )
                   else
-                    const SizedBox(width: 48),
+                    const SizedBox(width: 48, height: 50,),
+                    
                   const Spacer(),
-                  if (showLogo)
-                    const Text(
-                      'SERVIX',
-                      style: TextStyle(
-                        color: AppColors.accent,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  const Spacer(),
-                  const SizedBox(width: 48),
+                  const SizedBox(width: 48, height: 50,),
                 ],
               ),
             ),
@@ -81,7 +71,7 @@ class WhiteRoundedContainer extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: AppColors.white,
+        color: Color.fromARGB(0, 255, 255, 255),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),

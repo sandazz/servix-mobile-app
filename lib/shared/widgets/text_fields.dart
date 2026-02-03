@@ -54,7 +54,7 @@ class CustomTextField extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.grey700,
+              color: Color.fromARGB(255, 237, 237, 237),
             ),
           ),
           const SizedBox(height: 8),
@@ -177,7 +177,7 @@ class PhoneTextField extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.grey700,
+              color: Color.fromARGB(255, 237, 237, 237),
             ),
           ),
           const SizedBox(height: 8),

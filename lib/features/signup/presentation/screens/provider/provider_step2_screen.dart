@@ -25,6 +25,7 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
   late final TextEditingController _confirmPasswordController;
   late final TextEditingController _addressController;
   late Set<String> _selectedCategories;
+  bool _showDropdown = false;
 
   @override
   void initState() {
@@ -53,6 +54,12 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
       } else {
         _selectedCategories.add(category);
       }
+    });
+  }
+
+  void _showCategorySelector(BuildContext context) {
+    setState(() {
+      _showDropdown = !_showDropdown;
     });
   }
 
@@ -94,19 +101,23 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
         onBackPressed: () => context.go('/provider-signup/step1'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 2, totalSteps: 6),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
               'Services & Security',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // Form
             Expanded(
               child: WhiteRoundedContainer(
@@ -118,69 +129,137 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
                       children: [
                         // Service Categories Label
                         const Text(
-                          'Service Categories *',
+                          'Job Category',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.grey700,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.white,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Select the services you offer',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.grey500,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Service Categories Grid
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: ServiceCategory.values.map((category) {
-                            final isSelected = _selectedCategories.contains(
-                              category.key,
-                            );
-                            return FilterChip(
-                              label: Text(category.displayName),
-                              selected: isSelected,
-                              onSelected: (_) => _toggleCategory(category.key),
-                              selectedColor: AppColors.primaryBlue.withOpacity(
-                                0.2,
-                              ),
-                              checkmarkColor: AppColors.primaryBlue,
-                              labelStyle: TextStyle(
-                                color: isSelected
-                                    ? AppColors.primaryBlue
-                                    : AppColors.grey700,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? AppColors.primaryBlue
-                                      : AppColors.grey300,
+                        const SizedBox(height: 8),
+                        // Service Categories Dropdown
+                        Column(
+                          children: [
+                            InkWell(
+                              onTap: () => _showCategorySelector(context),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8EAF6),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _selectedCategories.isEmpty
+                                            ? '(Select Category)'
+                                            : _selectedCategories
+                                                  .map((key) {
+                                                    final category =
+                                                        ServiceCategory.values
+                                                            .firstWhere(
+                                                              (c) =>
+                                                                  c.key == key,
+                                                            );
+                                                    return category.displayName;
+                                                  })
+                                                  .join(', '),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: _selectedCategories.isEmpty
+                                              ? AppColors.grey500
+                                              : AppColors.grey900,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      _showDropdown
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      color: AppColors.grey600,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          }).toList(),
+                            ),
+                            if (_showDropdown)
+                              Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8EAF6),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                constraints: const BoxConstraints(
+                                  maxHeight: 300,
+                                ),
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  padding: EdgeInsets.zero,
+                                  itemCount: ServiceCategory.values.length,
+                                  itemBuilder: (context, index) {
+                                    final category =
+                                        ServiceCategory.values[index];
+                                    final isSelected = _selectedCategories
+                                        .contains(category.key);
+                                    return InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _toggleCategory(category.key);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
+                                        color: isSelected
+                                            ? const Color(0xFFD1D5F0)
+                                            : Colors.transparent,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                category.displayName,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: isSelected
+                                                      ? const Color(0xFF1E3A8A)
+                                                      : AppColors.grey800,
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.w600
+                                                      : FontWeight.normal,
+                                                ),
+                                              ),
+                                            ),
+                                            if (isSelected)
+                                              const Icon(
+                                                Icons.check,
+                                                color: Color(0xFF1E3A8A),
+                                                size: 20,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
                         ),
                         const SizedBox(height: 24),
-                        // Address
-                        CustomTextField(
-                          label: 'Service Area / Address *',
-                          hint: 'Enter your service area',
-                          controller: _addressController,
-                          textCapitalization: TextCapitalization.words,
-                          prefixIcon: const Icon(Icons.location_on_outlined),
-                          validator: (value) =>
-                              Validators.validateRequired(value, 'Address'),
-                        ),
-                        const SizedBox(height: 16),
+                        
                         // Password
                         PasswordTextField(
                           label: 'Password *',
@@ -188,14 +267,14 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
                           controller: _passwordController,
                           validator: Validators.validatePassword,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
-                          style: TextStyle(
-                            color: AppColors.grey500,
-                            fontSize: 12,
-                          ),
-                        ),
+                        // const SizedBox(height: 8),
+                        // Text(
+                        //   'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
+                        //   style: TextStyle(
+                        //     color: AppColors.grey500,
+                        //     fontSize: 12,
+                        //   ),
+                        // ),
                         const SizedBox(height: 16),
                         // Confirm Password
                         PasswordTextField(
@@ -208,9 +287,50 @@ class _ProviderStep2ScreenState extends ConsumerState<ProviderStep2Screen> {
                                 _passwordController.text,
                               ),
                         ),
+                        const SizedBox(height: 16),
+                        // Address
+                        CustomTextField(
+                          label: 'Address *',
+                          hint: 'Enter your address',
+                          controller: _addressController,
+                          textCapitalization: TextCapitalization.words,
+                          prefixIcon: const Icon(Icons.location_on_outlined),
+                          validator: (value) =>
+                              Validators.validateRequired(value, 'Address'),
+                        ),
+                        
                         const SizedBox(height: 32),
                         // Next Button
                         PrimaryButton(text: 'Next', onPressed: _handleNext),
+
+                        const SizedBox(height: 20),
+                        const StepIndicator(currentStep: 2, totalSteps: 6),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'If you have a account, so',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/login'),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

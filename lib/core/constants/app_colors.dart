@@ -12,6 +12,7 @@ class AppColors {
   // Accent Colors
   static const Color accent = Color(0xFFFFC301); // Gold
   static const Color primaryButton = Color(0xFFb8921a);
+  static const Color primaryButtonDisabled = Color.fromARGB(255, 117, 93, 16);
 
   // Status Colors
   static const Color success = Color(0xFF34C759);

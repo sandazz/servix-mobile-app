@@ -37,17 +37,14 @@ class _SignupSelectAccountScreenState
           children: [
             const SizedBox(height: 40),
             // Header
-            const Text(
-              'Account Type',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
             ),
             const SizedBox(height: 8),
             const Text(
-              'Select your account type',
+              'Select user type',
               style: TextStyle(
                 color: AppColors.white,
                 fontSize: 16,
@@ -61,24 +58,12 @@ class _SignupSelectAccountScreenState
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    // Personal Account Option
-                    SelectionCard(
-                      title: 'Personal Account',
-                      subtitle: 'For individual users seeking services',
-                      icon: Icons.person,
-                      isSelected: _selectedType == ClientType.personal,
-                      onTap: () {
-                        setState(() {
-                          _selectedType = ClientType.personal;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
                     // Business Account Option
                     SelectionCard(
                       title: 'Business Account',
-                      subtitle: 'For companies seeking professional services',
-                      icon: Icons.business,
+                      subtitle: 'If you select this option, you can access our services. but you can\'t service provide.',
+                      imagePath:
+                          'assets/images/user_types/business-account.png',
                       isSelected: _selectedType == ClientType.business,
                       onTap: () {
                         setState(() {
@@ -86,10 +71,24 @@ class _SignupSelectAccountScreenState
                         });
                       },
                     ),
+                    const SizedBox(height: 16),
+                    // Personal Account Option
+                    SelectionCard(
+                      title: 'Personal Account',
+                      subtitle: 'If you select this option, you can provide services. but you can\'t get services from this account.',
+                      imagePath:
+                          'assets/images/user_types/personal-account.png',
+                      isSelected: _selectedType == ClientType.personal,
+                      onTap: () {
+                        setState(() {
+                          _selectedType = ClientType.personal;
+                        });
+                      },
+                    ),
                     const Spacer(),
                     // Continue Button
                     PrimaryButton(
-                      text: 'Continue',
+                      text: 'Next',
                       onPressed: _selectedType != null ? _handleContinue : null,
                       isEnabled: _selectedType != null,
                     ),

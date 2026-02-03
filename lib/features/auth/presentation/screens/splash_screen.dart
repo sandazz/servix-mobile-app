@@ -96,39 +96,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.handyman,
-                            size: 60,
-                            color: AppColors.primaryBlue,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                       // App Name
-                      const Text(
-                        'SERVIX',
-                        style: TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 4,
-                        ),
+                      Image.asset(
+                        'assets/images/servix-logo.png',
+                        height: 40,
+                        fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 8),
                       // Tagline

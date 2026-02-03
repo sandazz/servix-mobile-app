@@ -29,22 +29,24 @@ class PrimaryButton extends StatelessWidget {
       height: height,
       child: ElevatedButton(
         onPressed: isEnabled && !isLoading ? onPressed : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled
-              ? AppColors.primaryButton
-              : AppColors.grey400,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return AppColors.primaryButtonDisabled;
+            }
+            return AppColors.primaryButton;
+          }),
+          foregroundColor: WidgetStateProperty.all<Color>(AppColors.white),
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          elevation: 0,
+          elevation: WidgetStateProperty.all<double>(0),
         ),
         child: isLoading
             ? const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                 ),
               )
@@ -52,12 +54,13 @@ class PrimaryButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: 20),
+                    Icon(icon, size: 20, color: AppColors.white),
                     const SizedBox(width: 8),
                   ],
                   Text(
                     text,
                     style: const TextStyle(
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -95,34 +98,34 @@ class SecondaryButton extends StatelessWidget {
       height: height,
       child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primaryBlue,
-          side: const BorderSide(color: AppColors.primaryBlue),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.all<Color>(
+            AppColors.primaryBlue,
+          ),
+          side: WidgetStateProperty.all<BorderSide>(
+            const BorderSide(color: AppColors.primaryBlue),
+          ),
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
         child: isLoading
             ? const SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.primaryBlue,
-                  ),
-                ),
+                child: CircularProgressIndicator(),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: 20),
+                    Icon(icon, size: 20, color: AppColors.primaryBlue),
                     const SizedBox(width: 8),
                   ],
                   Text(
                     text,
                     style: const TextStyle(
+                      color: AppColors.primaryBlue,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -138,7 +141,7 @@ class SecondaryButton extends StatelessWidget {
 class SelectionCard extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final IconData icon;
+  final String imagePath;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -146,7 +149,7 @@ class SelectionCard extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    required this.icon,
+    required this.imagePath,
     required this.isSelected,
     required this.onTap,
   });
@@ -158,28 +161,26 @@ class SelectionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primaryBlue.withOpacity(0.1)
-              : AppColors.white,
+          color: const Color(0xFFE8EAF6),
           border: Border.all(
-            color: isSelected ? AppColors.primaryBlue : AppColors.grey300,
-            width: isSelected ? 2 : 1,
+            color: isSelected
+                ? const Color(0xFF1E3A8A)
+                : const Color(0xFFE8EAF6),
+            width: 2,
           ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              width: 80,
+              height: 80,
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryBlue : AppColors.grey100,
+                color: const Color.fromARGB(255, 249, 250, 250),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: isSelected ? AppColors.white : AppColors.grey600,
-                size: 28,
-              ),
+              child: Image.asset(imagePath, fit: BoxFit.contain),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -188,12 +189,10 @@ class SelectionCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected
-                          ? AppColors.primaryBlue
-                          : AppColors.grey800,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E3A8A),
                     ),
                   ),
                   if (subtitle != null) ...[
@@ -201,8 +200,8 @@ class SelectionCard extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.grey600,
+                        fontSize: 12,
+                        color: Color(0xFF64748B),
                       ),
                     ),
                   ],
@@ -210,10 +209,14 @@ class SelectionCard extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: AppColors.primaryBlue,
-                size: 24,
+              Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF10B981),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 18),
               ),
           ],
         ),

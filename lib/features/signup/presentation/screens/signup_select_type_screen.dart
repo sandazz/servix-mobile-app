@@ -41,17 +41,14 @@ class _SignupSelectTypeScreenState
           children: [
             const SizedBox(height: 40),
             // Header
-            const Text(
-              'Join Servix',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
             ),
             const SizedBox(height: 8),
             const Text(
-              'How would you like to use Servix?',
+              'Select user type',
               style: TextStyle(
                 color: AppColors.white,
                 fontSize: 16,
@@ -68,8 +65,10 @@ class _SignupSelectTypeScreenState
                     // Service Provider Option
                     SelectionCard(
                       title: 'Service Provider',
-                      subtitle: 'Offer your professional services',
-                      icon: Icons.engineering,
+                      subtitle:
+                          'If you select this option, you can access our services, but you can\'t service provide.',
+                      imagePath:
+                          'assets/images/user_types/service-providers-user-type.png',
                       isSelected: _selectedType == UserType.serviceProvider,
                       onTap: () {
                         setState(() {
@@ -80,9 +79,11 @@ class _SignupSelectTypeScreenState
                     const SizedBox(height: 16),
                     // Client Option
                     SelectionCard(
-                      title: 'Client',
-                      subtitle: 'Find and hire service providers',
-                      icon: Icons.person_search,
+                      title: 'Contractor',
+                      subtitle:
+                          'If you select this option, you can provide services, but you can\'t get services from this account.',
+                      imagePath:
+                          'assets/images/user_types/contractor-user-type.png',
                       isSelected: _selectedType == UserType.contractor,
                       onTap: () {
                         setState(() {
@@ -93,30 +94,9 @@ class _SignupSelectTypeScreenState
                     const Spacer(),
                     // Continue Button
                     PrimaryButton(
-                      text: 'Continue',
+                      text: 'Next',
                       onPressed: _selectedType != null ? _handleContinue : null,
                       isEnabled: _selectedType != null,
-                    ),
-                    const SizedBox(height: 16),
-                    // Login Link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Already have an account? ',
-                          style: TextStyle(color: AppColors.grey600),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.go('/login'),
-                          child: const Text(
-                            'Sign In',
-                            style: TextStyle(
-                              color: AppColors.primaryBlue,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                     const SizedBox(height: 16),
                   ],
