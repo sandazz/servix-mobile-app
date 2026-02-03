@@ -57,13 +57,16 @@ class _ClientStep1ScreenState extends ConsumerState<ClientStep1Screen> {
   void _handleNext() {
     if (!_formKey.currentState!.validate()) return;
 
+    final signupData = ref.read(signupProvider);
+    final isBusiness = signupData.clientType == ClientType.business;
+
     ref
         .read(signupProvider.notifier)
         .updatePersonalInfo(
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
           email: _emailController.text.trim(),
-          address: _addressController.text.trim(),
+          address: isBusiness ? _addressController.text.trim() : '',
           companyName: _companyNameController.text.trim(),
           userPosition: _positionController.text.trim(),
         );
@@ -82,19 +85,23 @@ class _ClientStep1ScreenState extends ConsumerState<ClientStep1Screen> {
         onBackPressed: () => context.go('/signup-select-account'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 1, totalSteps: 5),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             Text(
               isBusiness ? 'Business Information' : 'Personal Information',
               style: const TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // Form
             Expanded(
               child: WhiteRoundedContainer(
@@ -130,28 +137,30 @@ class _ClientStep1ScreenState extends ConsumerState<ClientStep1Screen> {
                           ),
                           const SizedBox(height: 16),
                         ],
-                        // First Name
-                        CustomTextField(
-                          label: 'First Name *',
-                          hint: 'Enter your first name',
-                          controller: _firstNameController,
-                          textCapitalization: TextCapitalization.words,
-                          prefixIcon: const Icon(Icons.person_outline),
-                          validator: (value) =>
-                              Validators.validateName(value, 'First name'),
-                        ),
-                        const SizedBox(height: 16),
-                        // Last Name
-                        CustomTextField(
-                          label: 'Last Name *',
-                          hint: 'Enter your last name',
-                          controller: _lastNameController,
-                          textCapitalization: TextCapitalization.words,
-                          prefixIcon: const Icon(Icons.person_outline),
-                          validator: (value) =>
-                              Validators.validateName(value, 'Last name'),
-                        ),
-                        const SizedBox(height: 16),
+                        if (!isBusiness) ...[
+                          // First Name
+                          CustomTextField(
+                            label: 'First Name *',
+                            hint: 'Enter your first name',
+                            controller: _firstNameController,
+                            textCapitalization: TextCapitalization.words,
+                            prefixIcon: const Icon(Icons.person_outline),
+                            validator: (value) =>
+                                Validators.validateName(value, 'First name'),
+                          ),
+                          const SizedBox(height: 16),
+                          // Last Name
+                          CustomTextField(
+                            label: 'Last Name *',
+                            hint: 'Enter your last name',
+                            controller: _lastNameController,
+                            textCapitalization: TextCapitalization.words,
+                            prefixIcon: const Icon(Icons.person_outline),
+                            validator: (value) =>
+                                Validators.validateName(value, 'Last name'),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         // Email
                         CustomTextField(
                           label: 'Email *',
@@ -162,18 +171,18 @@ class _ClientStep1ScreenState extends ConsumerState<ClientStep1Screen> {
                           validator: Validators.validateEmail,
                         ),
                         const SizedBox(height: 16),
-                        // Address
-                        CustomTextField(
-                          label: isBusiness
-                              ? 'Business Address *'
-                              : 'Address *',
-                          hint: 'Enter your address',
-                          controller: _addressController,
-                          textCapitalization: TextCapitalization.words,
-                          prefixIcon: const Icon(Icons.location_on_outlined),
-                          validator: (value) =>
-                              Validators.validateRequired(value, 'Address'),
-                        ),
+                        if (isBusiness) ...[
+                          // Business Address
+                          CustomTextField(
+                            label: 'Business Address *',
+                            hint: 'Enter your address',
+                            controller: _addressController,
+                            textCapitalization: TextCapitalization.words,
+                            prefixIcon: const Icon(Icons.location_on_outlined),
+                            validator: (value) =>
+                                Validators.validateRequired(value, 'Address'),
+                          ),
+                        ],
                         if (!isBusiness) ...[
                           const SizedBox(height: 16),
                           // Optional Company Name for personal accounts
@@ -188,6 +197,35 @@ class _ClientStep1ScreenState extends ConsumerState<ClientStep1Screen> {
                         const SizedBox(height: 32),
                         // Next Button
                         PrimaryButton(text: 'Next', onPressed: _handleNext),
+
+                        const SizedBox(height: 20),
+                        const StepIndicator(currentStep: 1, totalSteps: 5),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'If you have a account, so',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/login'),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

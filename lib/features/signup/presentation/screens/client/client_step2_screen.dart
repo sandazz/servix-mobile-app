@@ -27,6 +27,7 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _phoneController;
   late final TextEditingController _secondaryPhoneController;
+  late final TextEditingController _addressController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
 
@@ -49,6 +50,7 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
       secondaryPhone = secondaryPhone.substring(3);
     }
     _secondaryPhoneController = TextEditingController(text: secondaryPhone);
+    _addressController = TextEditingController(text: signupData.address);
     _passwordController = TextEditingController(text: signupData.password);
     _confirmPasswordController = TextEditingController(
       text: signupData.confirmPassword,
@@ -59,6 +61,7 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
   void dispose() {
     _phoneController.dispose();
     _secondaryPhoneController.dispose();
+    _addressController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -72,12 +75,19 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
       _errorMessage = null;
     });
 
-    // Format phone number with country code
+    // Format phone numbers with country code
     final phoneNumber =
         '${AppConfig.phonePrefix}${_phoneController.text.trim()}';
-    final secondaryPhone = _secondaryPhoneController.text.trim().isNotEmpty
+
+    final signupData = ref.read(signupProvider);
+    final isBusiness = signupData.clientType == ClientType.business;
+
+    final secondaryPhone =
+        (_secondaryPhoneController.text.trim().isNotEmpty && isBusiness)
         ? '${AppConfig.phonePrefix}${_secondaryPhoneController.text.trim()}'
         : null;
+
+    final address = !isBusiness ? _addressController.text.trim() : '';
 
     // Update signup data
     ref
@@ -86,12 +96,18 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
           mobileNumber: phoneNumber,
           secondaryPhoneNumber: secondaryPhone,
         );
+
     ref
         .read(signupProvider.notifier)
         .updatePassword(
           password: _passwordController.text,
           confirmPassword: _confirmPasswordController.text,
         );
+
+    // If personal account, also update address if provided
+    if (!isBusiness) {
+      ref.read(signupProvider.notifier).updatePersonalInfo(address: address);
+    }
 
     try {
       // Get the complete signup data
@@ -152,19 +168,23 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
         onBackPressed: () => context.go('/signup-steps/step1'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 2, totalSteps: 5),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
               'Contact & Security',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // Form
             Expanded(
               child: WhiteRoundedContainer(
@@ -207,65 +227,135 @@ class _ClientStep2ScreenState extends ConsumerState<ClientStep2Screen> {
                           ),
                           const SizedBox(height: 16),
                         ],
-                        // Phone Number
-                        PhoneTextField(
-                          label: 'Phone Number *',
-                          hint: '412 345 678',
-                          controller: _phoneController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Phone number is required';
-                            }
-                            if (value.length < 9) {
-                              return 'Please enter a valid phone number';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        // Secondary Phone (Business only)
+                        // Reordered fields based on account type
                         if (isBusiness) ...[
+                          // Password
+                          PasswordTextField(
+                            label: 'Password *',
+                            hint: 'Create a strong password',
+                            controller: _passwordController,
+                            validator: Validators.validatePassword,
+                          ),
+                          const SizedBox(height: 16),
+                          // Confirm Password
+                          PasswordTextField(
+                            label: 'Confirm Password *',
+                            hint: 'Re-enter your password',
+                            controller: _confirmPasswordController,
+                            validator: (value) =>
+                                Validators.validateConfirmPassword(
+                                  value,
+                                  _passwordController.text,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Mobile Number
+                          PhoneTextField(
+                            label: 'Phone Number *',
+                            hint: '412 345 678',
+                            controller: _phoneController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Phone number is required';
+                              }
+                              if (value.length < 9) {
+                                return 'Please enter a valid phone number';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          // Secondary Phone (Business only)
                           PhoneTextField(
                             label: 'Secondary Phone Number',
                             hint: '412 345 679',
                             controller: _secondaryPhoneController,
                           ),
-                          const SizedBox(height: 16),
-                        ],
-                        // Password
-                        PasswordTextField(
-                          label: 'Password *',
-                          hint: 'Create a strong password',
-                          controller: _passwordController,
-                          validator: Validators.validatePassword,
-                        ),
-                        const SizedBox(height: 8),
-                        // Password requirements hint
-                        Text(
-                          'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
-                          style: TextStyle(
-                            color: AppColors.grey500,
-                            fontSize: 12,
+                          const SizedBox(height: 32),
+                        ] else ...[
+                          // Personal account order
+                          // Password
+                          PasswordTextField(
+                            label: 'Password *',
+                            hint: 'Create a strong password',
+                            controller: _passwordController,
+                            validator: Validators.validatePassword,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Confirm Password
-                        PasswordTextField(
-                          label: 'Confirm Password *',
-                          hint: 'Re-enter your password',
-                          controller: _confirmPasswordController,
-                          validator: (value) =>
-                              Validators.validateConfirmPassword(
-                                value,
-                                _passwordController.text,
-                              ),
-                        ),
-                        const SizedBox(height: 32),
+                          const SizedBox(height: 16),
+                          // Confirm Password
+                          PasswordTextField(
+                            label: 'Confirm Password *',
+                            hint: 'Re-enter your password',
+                            controller: _confirmPasswordController,
+                            validator: (value) =>
+                                Validators.validateConfirmPassword(
+                                  value,
+                                  _passwordController.text,
+                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Address (Personal only)
+                          CustomTextField(
+                            label: 'Address *',
+                            hint: 'Enter your address',
+                            controller: _addressController,
+                            textCapitalization: TextCapitalization.words,
+                            prefixIcon: const Icon(Icons.location_on_outlined),
+                            validator: (value) =>
+                                Validators.validateRequired(value, 'Address'),
+                          ),
+                          const SizedBox(height: 16),
+                          // Mobile Number
+                          PhoneTextField(
+                            label: 'Phone Number *',
+                            hint: '412 345 678',
+                            controller: _phoneController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Phone number is required';
+                              }
+                              if (value.length < 9) {
+                                return 'Please enter a valid phone number';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 32),
+                        ],
                         // Next Button
                         PrimaryButton(
                           text: 'Create Account',
                           onPressed: _handleNext,
                           isLoading: _isLoading,
+                        ),
+
+                        const SizedBox(height: 20),
+                        const StepIndicator(currentStep: 2, totalSteps: 5),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'If you have a account, so',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/login'),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

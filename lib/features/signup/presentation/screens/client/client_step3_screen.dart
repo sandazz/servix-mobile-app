@@ -158,16 +158,20 @@ class _ClientStep3ScreenState extends ConsumerState<ClientStep3Screen> {
         onBackPressed: () => context.go('/signup-steps/step2'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 3, totalSteps: 5),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
               'Verify Your Phone',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
             const SizedBox(height: 8),
@@ -179,7 +183,7 @@ class _ClientStep3ScreenState extends ConsumerState<ClientStep3Screen> {
                 fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // OTP Input
             Expanded(
               child: WhiteRoundedContainer(
@@ -281,6 +285,34 @@ class _ClientStep3ScreenState extends ConsumerState<ClientStep3Screen> {
                       text: 'Verify',
                       onPressed: _handleVerify,
                       isLoading: _isLoading,
+                    ),
+                    const SizedBox(height: 20),
+                    const StepIndicator(currentStep: 3, totalSteps: 5),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'If you have a account, so',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.go('/login'),
+                            child: const Text(
+                              'Log In',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                decoration: TextDecoration.underline,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                   ],

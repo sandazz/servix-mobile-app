@@ -99,16 +99,20 @@ class _ClientStep4ScreenState extends ConsumerState<ClientStep4Screen> {
         onBackPressed: () => context.go('/signup-steps/step3'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 4, totalSteps: 5),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
               'ABN Verification',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
             const SizedBox(height: 8),
@@ -120,7 +124,7 @@ class _ClientStep4ScreenState extends ConsumerState<ClientStep4Screen> {
                 fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             // Form
             Expanded(
               child: WhiteRoundedContainer(
@@ -274,6 +278,34 @@ class _ClientStep4ScreenState extends ConsumerState<ClientStep4Screen> {
                           child: const Text(
                             'Skip for now',
                             style: TextStyle(color: AppColors.grey600),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const StepIndicator(currentStep: 4, totalSteps: 5),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                'If you have a account, so',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/login'),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
