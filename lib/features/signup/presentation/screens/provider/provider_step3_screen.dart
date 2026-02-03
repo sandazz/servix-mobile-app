@@ -118,6 +118,135 @@ class _ProviderStep3ScreenState extends ConsumerState<ProviderStep3Screen> {
     context.go('/provider-signup/step4');
   }
 
+  void _openDocumentSheet({
+    required List<DocumentType> docs,
+    required String title,
+    bool optional = false,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey900,
+                            ),
+                          ),
+                          if (optional) ...[
+                            const SizedBox(width: 6),
+                            const Text(
+                              '(optional)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.grey600,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemBuilder: (context, index) {
+                    final doc = docs[index];
+                    final isUploading = _uploadingDocs[doc.key] ?? false;
+                    ProviderDocumentMeta? uploaded;
+                    try {
+                      uploaded = ref
+                          .read(signupProvider)
+                          .providerDocuments
+                          .firstWhere((d) => d.documentType == doc.key);
+                    } catch (_) {
+                      uploaded = null;
+                    }
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      tileColor: const Color(0xFFF8F8F8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      ),
+                      title: Text(
+                        doc.displayName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: uploaded != null
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: uploaded != null
+                              ? const Color(0xFF15803D)
+                              : AppColors.grey800,
+                        ),
+                      ),
+                      trailing: isUploading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : IconButton(
+                              icon: Icon(
+                                uploaded != null
+                                    ? Icons.check_circle
+                                    : Icons.cloud_upload_outlined,
+                                color: uploaded != null
+                                    ? const Color(0xFF15803D)
+                                    : AppColors.grey600,
+                              ),
+                              onPressed: () => _pickAndUploadDocument(doc),
+                            ),
+                      onTap: isUploading
+                          ? null
+                          : () => _pickAndUploadDocument(doc),
+                    );
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemCount: docs.length,
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final signupData = ref.watch(signupProvider);
@@ -142,36 +271,30 @@ class _ProviderStep3ScreenState extends ConsumerState<ProviderStep3Screen> {
         onBackPressed: () => context.go('/provider-signup/step2'),
         child: Column(
           children: [
-            const SizedBox(height: 20),
-            const StepIndicator(currentStep: 3, totalSteps: 6),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             // Header
+            Image.asset(
+              'assets/images/servix-logo.png',
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 8),
             const Text(
               'Document Verification',
               style: TextStyle(
                 color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Upload required verification documents',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w300,
               ),
             ),
-            const SizedBox(height: 30),
-            // Document List
+            const SizedBox(height: 20),
+            // Content
             Expanded(
               child: WhiteRoundedContainer(
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Error Message
                       if (_errorMessage != null) ...[
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -204,44 +327,56 @@ class _ProviderStep3ScreenState extends ConsumerState<ProviderStep3Screen> {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      // Required Documents Section
-                      const Text(
-                        'Required Documents',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.grey800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ...requiredDocs.map(
-                        (docType) => _buildDocumentTile(
-                          docType: docType,
-                          signupData: signupData,
-                          isRequired: true,
+                      const SizedBox(height: 8),
+                      _buildUploadPanel(
+                        title: 'Upload Documents',
+                        docs: requiredDocs,
+                        onTap: () => _openDocumentSheet(
+                          docs: requiredDocs,
+                          title: 'Upload Documents',
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Optional Documents Section
-                      const Text(
-                        'Optional Documents',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.grey800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ...optionalDocs.map(
-                        (docType) => _buildDocumentTile(
-                          docType: docType,
-                          signupData: signupData,
-                          isRequired: false,
+                      _buildUploadPanel(
+                        title: 'Upload Documents',
+                        optional: true,
+                        docs: optionalDocs,
+                        onTap: () => _openDocumentSheet(
+                          docs: optionalDocs,
+                          title: 'Upload Documents',
+                          optional: true,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      // Next Button
                       PrimaryButton(text: 'Next', onPressed: _handleNext),
+                      const SizedBox(height: 20),
+                      const StepIndicator(currentStep: 3, totalSteps: 6),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'If you have a account, so',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => context.go('/login'),
+                              child: const Text(
+                                'Log In',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  decoration: TextDecoration.underline,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -253,96 +388,102 @@ class _ProviderStep3ScreenState extends ConsumerState<ProviderStep3Screen> {
     );
   }
 
-  Widget _buildDocumentTile({
-    required DocumentType docType,
-    required SignupData signupData,
-    required bool isRequired,
+  Widget _buildUploadPanel({
+    required String title,
+    required List<DocumentType> docs,
+    bool optional = false,
+    required VoidCallback onTap,
   }) {
-    ProviderDocumentMeta? uploadedDoc;
-    try {
-      uploadedDoc = signupData.providerDocuments.firstWhere(
-        (d) => d.documentType == docType.key,
-      );
-    } catch (_) {
-      uploadedDoc = null;
-    }
-    final isUploading = _uploadingDocs[docType.key] ?? false;
-    final isUploaded = uploadedDoc != null;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isUploaded ? AppColors.success : AppColors.grey300,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: isUploaded
-                ? AppColors.success.withOpacity(0.1)
-                : AppColors.grey100,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            isUploaded ? Icons.check_circle : Icons.description_outlined,
-            color: isUploaded ? AppColors.success : AppColors.grey500,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.3),
+            width: 1,
+            style: BorderStyle.solid,
           ),
         ),
-        title: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                docType.displayName,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ),
-            if (isRequired)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text(
-                  'Required',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppColors.error,
-                    fontWeight: FontWeight.w500,
+            Row(
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (optional) ...[
+                  const SizedBox(width: 6),
+                  Text(
+                    '(optional)',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Column(
+                children: const [
+                  Icon(
+                    Icons.cloud_upload_outlined,
+                    color: Colors.white,
+                    size: 38,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Upload Document',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 16),
+            ...docs.map(
+              (doc) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        doc.displayName,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-        subtitle: isUploaded
-            ? Text(
-                uploadedDoc.fileName,
-                style: const TextStyle(fontSize: 12, color: AppColors.success),
-                overflow: TextOverflow.ellipsis,
-              )
-            : const Text(
-                'Tap to upload',
-                style: TextStyle(fontSize: 12, color: AppColors.grey500),
-              ),
-        trailing: isUploading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : IconButton(
-                icon: Icon(
-                  isUploaded ? Icons.refresh : Icons.upload_file,
-                  color: isUploaded ? AppColors.grey500 : AppColors.primaryBlue,
-                ),
-                onPressed: () => _pickAndUploadDocument(docType),
-              ),
-        onTap: isUploading ? null : () => _pickAndUploadDocument(docType),
       ),
     );
   }
